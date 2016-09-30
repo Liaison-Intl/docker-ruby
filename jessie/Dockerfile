@@ -111,18 +111,12 @@ ENV RUBY_MAJOR=1.9 \
     RUBY_VERSION=1.9.3-p551 \
     RUBY_DOWNLOAD_SHA256=bb5be55cd1f49c95bb05b6f587701376b53d310eb1bb7c76fbd445a1c75b51e8 \
     RUBYGEMS_VERSION=2.6.6 \
-    BUNDLER_VERSION=1.12.5 \
-    GEM_HOME=/usr/local/bundle \
-    BUNDLE_PATH=/usr/local/bundle \
-    BUNDLE_APP_CONFIG=/usr/local/bundle \
-    BUNDLE_BIN=/usr/local/bundle/bin \
-    BUNDLE_SILENCE_ROOT_WARNING=1 \
     PATH=/usr/local/bundle/bin:$PATH
 RUN set -ex && \
     useradd -m -s /bin/bash app && \
-    mkdir -p /usr/src/ruby && \
     curl -SL -o ruby.tar.gz "http://cache.ruby-lang.org/pub/ruby/$RUBY_MAJOR/ruby-$RUBY_VERSION.tar.gz" && \
     echo "$RUBY_DOWNLOAD_SHA256 ruby.tar.gz" | sha256sum -c - && \
+    mkdir -p /usr/src/ruby && \
     tar -xzf ruby.tar.gz -C /usr/src/ruby --strip-components=1 && \
     rm -f ruby.tar.gz && \
     cd /usr/src/ruby && \
@@ -130,14 +124,7 @@ RUN set -ex && \
     ./configure --disable-install-doc --sysconfdir=/etc/ && \
     make && \
     make install && \
-    mkdir -p "$GEM_HOME" "$BUNDLE_BIN" && \
-    chmod 777 "$GEM_HOME" "$BUNDLE_BIN" && \
-    echo 'gem: --no-rdoc --no-ri' >> /etc/gemrc && \
     gem update --system $RUBYGEMS_VERSION && \
-    gem install bundler --version "$BUNDLER_VERSION" && \
-    chown -R app: $GEM_HOME && \
-    mkdir /opt/app && \
-    chown app: /opt/app && \
     rm -rf /usr/src/ruby
 
 ## Allow all user to use ping

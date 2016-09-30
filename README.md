@@ -12,7 +12,7 @@
 
   USER app
   WORKDIR /opt/app/
-  ENV GEM_HOME=/home/ci/bundle
+  ENV GEM_HOME=/home/app/bundle
   ENV BUNDLE_PATH=${GEM_HOME} \
       BUNDLE_APP_CONFIG=${GEM_HOME} \
       BUNDLE_BIN=${GEM_HOME}/bin \

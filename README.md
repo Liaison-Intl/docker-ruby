@@ -19,8 +19,7 @@
       PATH=${GEM_HOME}/bin:${PATH}
 
   RUN gem install \
-      bundler:1.12.5 \
-      io-console:0.4.6
+      bundler:1.12.5
 
   COPY Gemfile Gemfile
   COPY Gemfile.lock Gemfile.lock

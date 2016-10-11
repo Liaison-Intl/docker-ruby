@@ -38,7 +38,7 @@ RUN apt-get clean && apt-get update && apt-get install -y \
     automake \
     bison \
     libffi-dev \
-    postgresql-client-9.5 \
+    postgresql-client-9.6 \
     postgresql-common \
     libpq-dev \
     unixodbc-dev \

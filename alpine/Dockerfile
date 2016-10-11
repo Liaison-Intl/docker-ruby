@@ -41,7 +41,8 @@ RUN set -ex && \
     # For cas3-transformer ( Gemfile refer to remote git repos )
     git
 
-# TODO: install phantomjs 1.8.2 and wkhtmltopdf >=0.12.2.1
+# TODO: * install phantomjs 1.8.2 and wkhtmltopdf >=0.12.2.1
+#       * install postgres 9.6
 
 ## Install ruby
 #

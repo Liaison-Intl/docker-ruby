@@ -46,6 +46,7 @@ RUN apt-get clean && apt-get update && apt-get install -y \
     freetds-bin \
     libpcre3-dev \
     # Dependancy for wkhtmltopdf
+    xz-utils \
     xfonts-75dpi \
     fontconfig \
     libfontenc1 \
@@ -54,6 +55,16 @@ RUN apt-get clean && apt-get update && apt-get install -y \
     xfonts-base \
     xfonts-encodings \
     xfonts-utils \
+    # Dependancy for phantomjs
+    bzip2 \
+    flex \
+    gperf \
+    perl \
+    libfontconfig1-dev \
+    libicu-dev \
+    libfreetype6 \
+    libpng-dev \
+    libjpeg-dev \
     # For common ruby app
     libtcmalloc-minimal4 \
     imagemagick \
@@ -64,15 +75,6 @@ RUN apt-get clean && apt-get update && apt-get install -y \
     libpng++-dev \
     libpng3 \
     libfreetype6-dev \
-    # Dependancy for phantomjs
-    flex \
-    gperf \
-    perl \
-    libfontconfig1-dev \
-    libicu-dev \
-    libfreetype6 \
-    libpng-dev \
-    libjpeg-dev \
     # For common app ( with Gemfile refering to git repos )
     git && \
     # Tidy up and reduce space
@@ -96,14 +98,13 @@ RUN echo "America/New_York" > /etc/timezone && \
 
 ## Install wkhtmltox ( SECURITY: select latest stable from http://wkhtmltopdf.org/downloads.html )
 #
-RUN curl -SL -o wkhtmltox.deb http://download.gna.org/wkhtmltopdf/0.12/0.12.2.1/wkhtmltox-0.12.2.1_linux-jessie-amd64.deb && \
-    dpkg -i wkhtmltox.deb && \
-    rm wkhtmltox.deb
+RUN curl -sSL http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz \
+      | tar -C /usr/ --strip-components=1 -xJf -
 
-# Install phantomjs 1.8.2
+# Install phantomjs ( SECURITY: select latest 1.9.x from https://bitbucket.org/ariya/phantomjs/downloads )
 #
-RUN curl -SL -o /usr/bin/phantomjs https://www.dropbox.com/s/b7mgkdgsygjweux/phantomjs-1.8.2?dl=1 && \
-    chmod +x /usr/bin/phantomjs
+RUN curl -sSL https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2 \
+      | tar -C /usr/bin/ --strip-component=2 -xjf - phantomjs-1.9.8-linux-x86_64/bin/phantomjs
 
 ## Install ruby
 #

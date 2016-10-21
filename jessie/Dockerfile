@@ -75,6 +75,7 @@ RUN apt-get clean && apt-get update && apt-get install -y \
     libpng++-dev \
     libpng3 \
     libfreetype6-dev \
+    cron \
     # For common app ( with Gemfile refering to git repos )
     git && \
     # Tidy up and reduce space

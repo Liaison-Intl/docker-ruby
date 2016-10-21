@@ -76,6 +76,7 @@ RUN apt-get clean && apt-get update && apt-get install -y \
     libpng3 \
     libfreetype6-dev \
     cron \
+    vim-tiny \
     # For common app ( with Gemfile refering to git repos )
     git && \
     # Tidy up and reduce space

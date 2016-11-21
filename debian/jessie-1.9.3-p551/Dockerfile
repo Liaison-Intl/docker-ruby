@@ -45,6 +45,12 @@ RUN apt-get clean && apt-get update && apt-get install -y \
     freetds-dev \
     freetds-bin \
     libpcre3-dev \
+    # For minimum debug purpose
+    telnet \
+    redis-tools \
+    dnsutils \
+    net-tools \
+    netcat-openbsd \
     # Dependancy for wkhtmltopdf
     xz-utils \
     xfonts-75dpi \

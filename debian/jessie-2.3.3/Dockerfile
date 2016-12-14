@@ -51,6 +51,7 @@ RUN apt-get clean && apt-get update && apt-get install -y \
     dnsutils \
     net-tools \
     netcat-openbsd \
+    less \
     # Dependancy for wkhtmltopdf
     xz-utils \
     xfonts-75dpi \

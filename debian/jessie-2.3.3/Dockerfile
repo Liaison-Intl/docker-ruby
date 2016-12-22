@@ -145,6 +145,14 @@ RUN chmod +s /bin/ping
 ##
 COPY  policy.yml /etc/ImageMagick-6/
 
+## Simplify sourcing of config-map ENV from Kubernetes ( prior to 1.6 )
+#
+RUN mkdir /etc/bashrc.d && \
+    echo '[[ -d /etc/bashrc.d ]] && for i in $(find /etc/bashrc.d/ -type f | sort -n) ; do . $i ; done' \
+    >> /etc/profile && \
+    echo '[[ -d /etc/bashrc.d ]] && for i in $(find /etc/bashrc.d/ -type f | sort -n) ; do . $i ; done' \
+    >> /etc/bash.bashrc
+
 ## Force user to redefine CMD
 #
 CMD false

@@ -8,8 +8,7 @@ touch /exports/bob
 echo "/exports *(rw,fsid=0,no_subtree_check,insecure,no_root_squash,async)" \
   > /etc/exports
 
-time mount -t nfsd nfds /proc/fs/nfsd
-/usr/sbin/rpc.nfsd \
+time /usr/sbin/rpc.nfsd \
   -N 2 -N 3 -V 4 -V 4.1 --debug 8
 time /usr/sbin/exportfs -rv
 time /usr/sbin/rpc.mountd \
@@ -18,18 +17,16 @@ time /usr/sbin/rpc.mountd \
   --exports-file /etc/exports --debug all
 
 set +x
-echo "Initialization complete ..."
+echo "Initialization complete ($((${SECONDS}/60)) min $((${SECONDS}%60)) sec)"
 
 function stop()
 {
   echo "SIGTERM caught, terminating NFS process(es)..."
+  set -x
   /usr/sbin/rpc.nfsd 0
   /usr/sbin/exportfs -ua
   /usr/sbin/exportfs -f
   kill $(pidof rpc.mountd)
-  kill $(pidof rpc.nfsd)
-  umount /proc/fs/nfsd
-  umount -f /proc/fs/nfsd
   echo > /etc/exports
   echo "Terminated."
   exit 0

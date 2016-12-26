@@ -20,6 +20,23 @@ time /usr/sbin/rpc.mountd \
 set +x
 echo "Initialization complete ..."
 
+function stop()
+{
+  echo "SIGTERM caught, terminating NFS process(es)..."
+  /usr/sbin/rpc.nfsd 0
+  /usr/sbin/exportfs -ua
+  /usr/sbin/exportfs -f
+  kill $(pidof rpc.mountd)
+  kill $(pidof rpc.nfsd)
+  umount /proc/fs/nfsd
+  umount -f /proc/fs/nfsd
+  echo > /etc/exports
+  echo "Terminated."
+  exit 0
+}
+
+trap stop TERM SIGINT
+
 while true; do
     sleep 5
 done

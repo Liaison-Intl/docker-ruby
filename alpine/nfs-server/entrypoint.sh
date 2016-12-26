@@ -20,6 +20,7 @@ time /usr/sbin/rpc.mountd \
 
 set +x
 echo "Initialization complete ($((${SECONDS}/60)) min $((${SECONDS}%60)) sec)"
+touch /ready
 
 function stop()
 {

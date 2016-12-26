@@ -5,22 +5,19 @@ set -x
 
 [[ -d /exports/ ]] || ( mkdir /exports ; chmod 0777 /exports )
 touch /exports/bob
-
 echo "/exports *(rw,fsid=0,no_subtree_check,insecure,no_root_squash,async)" \
   > /etc/exports
-
-time /usr/sbin/rpc.mountd \
-  -N 2 -N 3 -V 4 -N 4.1 \
-  --no-udp \
-  --exports-file /etc/exports --debug all
-
-time /usr/sbin/exportfs -rv
 
 time /usr/sbin/rpc.nfsd \
   -N 2 -N 3 -V 4 -N 4.1 --no-udp -G 10 --debug 8 2
   # -G 10 to reduce grace time to 10 seconds -- the lowest allowed -- to allow
   # much quicker startup.  Otherwise can take up to 6 minute ...
   # trailing '2' indicate 'nrservs'
+time /usr/sbin/exportfs -rv
+time /usr/sbin/rpc.mountd \
+  -N 2 -N 3 -V 4 -N 4.1 \
+  --no-udp \
+  --exports-file /etc/exports --debug all
 
 set +x
 echo "Initialization complete ($((${SECONDS}/60)) min $((${SECONDS}%60)) sec)"

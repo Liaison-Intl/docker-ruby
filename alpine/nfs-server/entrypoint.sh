@@ -20,7 +20,7 @@ mount -t rpc_pipefs rpc_pipefs /var/lib/nfs/rpc_pipefs
 # While NFSv4 doesn't need portmapper it still try to register to it
 # and will hang for 3 minutes on a read to /proc/fs/nfsd/portlist
 # at startup if this daemon is not started
-#time rpcbind -w
+time rpcbind -w
 
 time /usr/sbin/exportfs -rv
 
@@ -29,13 +29,10 @@ time /usr/sbin/rpc.mountd \
   --no-udp \
   --exports-file /etc/exports --debug all
 
-time /usr/sbin/rpc.nfsd \
-  -G 10 -N 2 -N 3 -V 4 -V 4.1 --no-udp --debug 8 8 &
+strace /usr/sbin/rpc.nfsd \
+  -G 10 -N 2 -N 3 -V 4 -V 4.1 --no-udp --debug 8 8
 # ^^ -G 10 to reduce grace time to 10 seconds -- the lowest allowed -- to allow
 #    quicker startup.  Trailing '8' indicate 'nrservs'.
-#    we background the command since it will hang for 3 minutes if rpcbind is not
-#    started.  Starting rpcbind have the side effect of making kubernetes pods
-#    attemping to mount this NFS volume as NFSv3 which fail when using GCI image.
 
 set +x
 echo "Initialization complete ($((${SECONDS}/60)) min $((${SECONDS}%60)) sec)"

@@ -22,17 +22,17 @@ mount -t rpc_pipefs rpc_pipefs /var/lib/nfs/rpc_pipefs
 # at startup if this daemon is not started
 time rpcbind -w
 
+strace /usr/sbin/rpc.nfsd \
+  -G 10 -N 2 -N 3 -V 4 -V 4.1 --no-udp --debug 8 8
+# ^^ -G 10 to reduce grace time to 10 seconds -- the lowest allowed -- to allow
+#    quicker startup.  Trailing '8' indicate 'nrservs'.
+
 time /usr/sbin/exportfs -rv
 
 time /usr/sbin/rpc.mountd \
   -N 2 -N 3 -V 4 -V 4.1 \
   --no-udp \
   --exports-file /etc/exports --debug all
-
-strace /usr/sbin/rpc.nfsd \
-  -G 10 -N 2 -N 3 -V 4 -V 4.1 --no-udp --debug 8 8
-# ^^ -G 10 to reduce grace time to 10 seconds -- the lowest allowed -- to allow
-#    quicker startup.  Trailing '8' indicate 'nrservs'.
 
 set +x
 echo "Initialization complete ($((${SECONDS}/60)) min $((${SECONDS}%60)) sec)"
@@ -49,7 +49,7 @@ function stop()
   /usr/sbin/exportfs -ua
   /usr/sbin/exportfs -f
   kill $(pidof rpc.mountd)
-  #kill $(pidof rpc.rpcbind)
+  kill $(pidof rpc.rpcbind)
   umount -f /var/lib/nfs/rpc_pipefs
   umount -f /proc/fs/nfsd
   echo > /etc/exports

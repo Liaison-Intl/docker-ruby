@@ -1,4 +1,4 @@
-FROM alpine:edge
+FROM alpine:3.4
 RUN apk add --no-cache nfs-utils bash
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh

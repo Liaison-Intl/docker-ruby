@@ -1,8 +1,6 @@
 #!/bin/bash
 set -x
 
-## No frill entrypoint ...
-
 [[ -d /exports/ ]] || ( mkdir /exports ; chmod 0777 /exports )
 touch /exports/bob
 
@@ -33,7 +31,6 @@ time /usr/sbin/rpc.mountd \
   -N 2 -N 3 -V 4 -V 4.1 \
   --no-udp \
   --debug all
-#  --exports-file /etc/exports
 
 set +x
 echo "Initialization complete ($((${SECONDS}/60)) min $((${SECONDS}%60)) sec)"
@@ -60,7 +57,7 @@ function stop()
 
 trap stop TERM SIGINT
 
-# Looping to allow to trap TERM/INT signal
+# Looping to allow to trap TERM/SIGINT signal
 while true; do
     sleep 5
 done

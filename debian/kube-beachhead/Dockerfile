@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND noninteractive
 #
 COPY gcloud_apt.gpg /opt/
 RUN cat /opt/gcloud_apt.gpg | apt-key add - && \
-    rm -f /opt/postgres_apt.gpg
+    rm -f /opt/gcloud_apt.gpg
 
 ## Install base package
 #
@@ -62,7 +62,11 @@ RUN chmod +s /bin/ping
 ## Install confd
 #
 RUN curl -sSL https://github.com/kelseyhightower/confd/releases/download/v0.11.0/confd-0.11.0-linux-amd64 > /usr/bin/confd && \
-    chmod +X /usr/bin/confd
+    chmod +x /usr/bin/confd
+
+## Add kube-beachhead daemon
+#
+COPY kube-beachhead /
 
 ## Force user to redefine CMD
 #

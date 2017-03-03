@@ -1,0 +1,188 @@
+#!/bin/bash
+
+# kube-beachhead intent to :
+#   1. generate a template used by confd using CMD args
+#   2. fetch NodePort from k8s cluster for each desired services name
+#   3. using NodePort from (2), template from (1) and k8s credential mounted into
+#      the container at /root/.kube/config
+#      a) generate haproxy config
+#      b) start up haproxy
+#      c) monitor kubernetes cluster
+#      d) regenerate and restart haproxy as needed to reflect k8s cluster state
+#
+# SYNTAX
+#   kube-beachhead CLUSTER_NAME NAMESPACE PORT-PORT_POD+service-name ...
+#   ^^ multiple PORT-PORT_POD+service-name pair can be passed
+#
+# END RESULT
+#   Kube-beachhead will arrange for each local PORT to proxy to the correct
+#   NodePort on CLUSTER.NAMESPACE.PORT_POD,service-name
+#
+
+CLUSTER=$1
+NAMESPACE=$2
+
+shift ; shift
+BEACHHEAD_ARGS="$*"
+
+if [[ -z "$BEACHHEAD_ARGS" ]] ; then
+  echo "SYNTAX:  kube-beachhead CLUSTER_NAME NAMESPACE PORT-PORT_POD+service-name ..."
+  echo "         ^^ multiple PORT-PORT_POD+service-name pair can be passed"
+  exit 1
+fi
+
+
+function generate-confd-config() {
+  mkdir -p /etc/confd/conf.d
+  cat << __EOF | sed -e 's/^    //' > /etc/confd/conf.d/kube-beachhead.toml
+    [template]
+    src = "haproxy.cfg.tmpl"
+    dest = "/etc/haproxy/haproxy.cfg"
+    reload_cmd = "echo reloading haproxy && haproxy -f /etc/haproxy/haproxy.cfg -p /var/run/haproxy.pid -sf \$(cat /var/run/haproxy.pid) || ( pkill -KILL haproxy ; haproxy -f /etc/haproxy/haproxy.cfg -p /var/run/haproxy.pid)"
+    check_cmd= "haproxy -c -f {{.src}}"
+    keys = [
+      "/beachhead/kubernetes/nodesip",
+__EOF
+
+  for kv in $BEACHHEAD_ARGS ; do
+    port=${kv%+*}
+    port_listen=${port%-*}
+    port_pod=${port#*-}
+    service_name=${kv#*+}
+    service_ref=${service_name//-/} # replace invalid '-' by ''
+    echo "  \"/beachhead/${service_ref}/name\"," >> /etc/confd/conf.d/kube-beachhead.toml
+    echo "  \"/beachhead/${service_ref}/nodeport\"," >> /etc/confd/conf.d/kube-beachhead.toml
+  done
+
+  echo "]" >> /etc/confd/conf.d/kube-beachhead.toml
+}
+
+function generate-confd-template() {
+  mkdir -p /etc/confd/templates
+  cat << __EOF | sed -e 's/^    //' > /etc/confd/templates/haproxy.cfg.tmpl
+    global
+      daemon
+      user haproxy
+      group haproxy
+      stats socket /var/run/haproxy.stat mode 0600
+
+      spread-checks 5
+      tune.comp.maxlevel 2
+      maxconn 32768
+
+    defaults
+      mode tcp
+      option tcp-check
+      timeout connect 4s
+      timeout client-fin 30s
+      timeout client 200s
+      timeout server 180s
+      timeout tunnel 3h
+      timeout queue 190s
+      timeout check 4s
+    
+      balance roundrobin
+    
+      option dontlognull
+ 
+      option clitcpka
+      option srvtcpka
+  
+      option abortonclose
+      option redispatch 1
+      retries 3
+
+      option contstats
+  
+    frontend stats
+      bind 0.0.0.0:9999
+      mode http
+      default_backend no_backend
+      monitor-uri /haproxy-kube-beachhead/monitor
+
+      stats enable
+      stats uri /haproxy/stats
+      stats realm Haproxy\ Statistics
+      stats auth admin1:admin1
+
+    backend no_backend
+      mode http
+      # empty list on purpose
+
+__EOF
+
+  for kv in $BEACHHEAD_ARGS ; do
+    port=${kv%+*}
+    port_listen=${port%-*}
+    port_pod=${port#*-}
+    service_name=${kv#*+}
+    service_ref=${service_name//-/} # replace invalid '-' by ''
+    cat << ____EOF | sed -e 's/^      //' >> /etc/confd/templates/haproxy.cfg.tmpl
+      frontend ${service_name}
+        bind 0.0.0.0:${port_listen}
+        default_backend ${service_name}
+    
+      backend ${service_name}
+        {{ \$nodes := split (getv "/beachhead/kubernetes/nodesip") " " }}{{range \$nodes}}server ${service_name}-{{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} {{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} check inter 30s fall 1
+        {{end}}
+____EOF
+  done
+}
+
+function fetch_kubernetes_nodes_ip() {
+  export BEACHHEAD_KUBERNETES_NODESIP="$( \
+    kubectl get nodes \
+      -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}' \
+    )"
+  env | grep BEACHHEAD_KUBERNETES_NODESIP
+}
+
+function fetch_kubernetes_service_info() {
+  for kv in $BEACHHEAD_ARGS ; do
+    port=${kv%+*}
+    port_listen=${port%-*}
+    port_pod=${port#*-}
+    service_name=${kv#*+}
+    service_ref=${service_name//-/} # replace invalid '-' by ''
+    export BEACHHEAD_${service_ref^^}_NODEPORT="$( \
+      kubectl get services ${service_name} \
+        -n ${NAMESPACE} \
+        -o jsonpath="{.spec.ports[?(@.port==${port_pod})].nodePort}" \
+      )"
+    env |grep "BEACHHEAD_${service_ref^^}_NODEPORT"
+  done
+}
+
+function trigger-confd() {
+  confd -onetime -backend env
+}
+
+generate-confd-config
+generate-confd-template
+pkill -KILL haproxy
+sleep 5
+rm -f /etc/haproxy/haproxy.cfg
+rm -f /var/run/haproxy.pid
+
+while true ; do
+  ( 
+    set -eo pipefail # any error within the loop will cause the loop to not do anything
+                     # for that iteration
+    fetch_kubernetes_nodes_ip
+    fetch_kubernetes_service_info
+    trigger-confd
+  )
+  sleep 60
+
+  # If haproxy is not running move the template away
+  # to force the next confd iteration to do a restart of it
+  #
+  if ! pgrep ^haproxy &>/dev/null ; then
+    echo "WARNING: haproxy is not running"
+    echo "         cleaning haproxy.cfg to force restart at next"
+    echo "         confd iteration"
+    mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bad
+  fi
+
+  echo
+done

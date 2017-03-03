@@ -98,10 +98,10 @@ function generate-confd-template() {
       bind 0.0.0.0:9999
       mode http
       default_backend no_backend
-      monitor-uri /haproxy-kube-beachhead/monitor
+      monitor-uri /haproxy-beachhead/monitor
 
       stats enable
-      stats uri /haproxy/stats
+      stats uri /haproxy-beachhead/stats
       stats realm Haproxy\ Statistics
       stats auth admin1:admin1
 
@@ -123,7 +123,7 @@ __EOF
         default_backend ${service_name}
 
       backend ${service_name}
-        {{ \$nodes := split (getv "/beachhead/kubernetes/nodesip") " " }}{{range \$nodes}}server ${service_name}-{{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} {{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} check inter 30s fall 1
+        {{ \$nodes := split (getv "/beachhead/kubernetes/nodesip") " " }}{{range \$nodes}}server ${service_name}-{{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} {{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} check inter 10s fall 1
         {{end}}
 ____EOF
   done

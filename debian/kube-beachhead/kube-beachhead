@@ -80,20 +80,20 @@ function generate-confd-template() {
       timeout tunnel 3h
       timeout queue 190s
       timeout check 4s
-    
+
       balance roundrobin
-    
+
       option dontlognull
- 
+
       option clitcpka
       option srvtcpka
-  
+
       option abortonclose
       option redispatch 1
       retries 3
 
       option contstats
-  
+
     frontend stats
       bind 0.0.0.0:9999
       mode http
@@ -121,7 +121,7 @@ __EOF
       frontend ${service_name}
         bind 0.0.0.0:${port_listen}
         default_backend ${service_name}
-    
+
       backend ${service_name}
         {{ \$nodes := split (getv "/beachhead/kubernetes/nodesip") " " }}{{range \$nodes}}server ${service_name}-{{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} {{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} check inter 30s fall 1
         {{end}}
@@ -165,9 +165,9 @@ rm -f /etc/haproxy/haproxy.cfg
 rm -f /var/run/haproxy.pid
 
 while true ; do
-  ( 
-    set -eo pipefail # any error within the loop will cause the loop to not do anything
-                     # for that iteration
+  (
+    set -eo pipefail # any error within the loop will cause the loop to not do
+                     # any confd call for that iteration
     fetch_kubernetes_nodes_ip
     fetch_kubernetes_service_info
     trigger-confd

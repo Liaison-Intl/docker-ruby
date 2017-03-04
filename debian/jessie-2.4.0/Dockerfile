@@ -53,6 +53,7 @@ RUN apt-get clean && apt-get update && apt-get install -y \
     netcat-openbsd \
     less \
     htop \
+    strace \
     # Dependancy for wkhtmltopdf
     xz-utils \
     xfonts-75dpi \

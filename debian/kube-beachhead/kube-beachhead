@@ -118,12 +118,12 @@ __EOF
     service_name=${kv#*+}
     service_ref=${service_name//-/} # replace invalid '-' by ''
     cat << ____EOF | sed -e 's/^      //' >> /etc/confd/templates/haproxy.cfg.tmpl
-      frontend ${service_name}
+      frontend ${service_name}-${port_pod}
         bind 0.0.0.0:${port_listen}
-        default_backend ${service_name}
+        default_backend ${service_name}-${port_pod}
 
-      backend ${service_name}
-        {{ \$nodes := split (getv "/beachhead/kubernetes/nodesip") " " }}{{range \$nodes}}server ${service_name}-{{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} {{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} check inter 10s fall 1
+      backend ${service_name}-${port_pod}
+        {{ \$nodes := split (getv "/beachhead/kubernetes/nodesip") " " }}{{range \$nodes}}server ${service_name}-${port_pod}-{{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} {{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} check inter 10s fall 1
         {{end}}
 ____EOF
   done

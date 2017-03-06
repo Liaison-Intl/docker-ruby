@@ -50,8 +50,8 @@ __EOF
     port_pod=${port#*-}
     service_name=${kv#*+}
     service_ref=${service_name//-/} # replace invalid '-' by ''
-    echo "  \"/beachhead/${service_ref}/name\"," >> /etc/confd/conf.d/kube-beachhead.toml
-    echo "  \"/beachhead/${service_ref}/nodeport\"," >> /etc/confd/conf.d/kube-beachhead.toml
+    echo "  \"/beachhead/${service_ref}_${port_pod}/name\"," >> /etc/confd/conf.d/kube-beachhead.toml
+    echo "  \"/beachhead/${service_ref}_${port_pod}/nodeport\"," >> /etc/confd/conf.d/kube-beachhead.toml
   done
 
   echo "]" >> /etc/confd/conf.d/kube-beachhead.toml
@@ -123,7 +123,7 @@ __EOF
         default_backend ${service_name}-${port_pod}
 
       backend ${service_name}-${port_pod}
-        {{ \$nodes := split (getv "/beachhead/kubernetes/nodesip") " " }}{{range \$nodes}}server ${service_name}-${port_pod}-{{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} {{.}}:{{getv "/beachhead/${service_ref}/nodeport"}} check inter 10s fall 1
+        {{ \$nodes := split (getv "/beachhead/kubernetes/nodesip") " " }}{{range \$nodes}}server ${service_name}-${port_pod}-{{.}}:{{getv "/beachhead/${service_ref}_${port_pod}/nodeport"}} {{.}}:{{getv "/beachhead/${service_ref}_${port_pod}/nodeport"}} check inter 10s fall 1
         {{end}}
 ____EOF
   done
@@ -144,13 +144,13 @@ function fetch_kubernetes_service_info() {
     port_pod=${port#*-}
     service_name=${kv#*+}
     service_ref=${service_name//-/} # replace invalid '-' by ''
-    export BEACHHEAD_${service_ref^^}_NODEPORT="$( \
+    export BEACHHEAD_${service_ref^^}_${port_pod}_NODEPORT="$( \
       kubectl get services ${service_name} \
         -n ${NAMESPACE} \
         -o jsonpath="{.spec.ports[?(@.port==${port_pod})].nodePort}" \
       || echo 1 \
       )"
-    env |grep "BEACHHEAD_${service_ref^^}_NODEPORT"
+    env |grep "BEACHHEAD_${service_ref^^}_${port_pod}_NODEPORT"
   done
 }
 

@@ -148,6 +148,7 @@ function fetch_kubernetes_service_info() {
       kubectl get services ${service_name} \
         -n ${NAMESPACE} \
         -o jsonpath="{.spec.ports[?(@.port==${port_pod})].nodePort}" \
+      || echo 1 \
       )"
     env |grep "BEACHHEAD_${service_ref^^}_NODEPORT"
   done

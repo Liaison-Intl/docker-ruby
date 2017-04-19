@@ -156,6 +156,11 @@ RUN mkdir /etc/bashrc.d && \
     echo '[[ -d /etc/bashrc.d ]] && for i in $(find /etc/bashrc.d/ -type f | sort -n) ; do . $i ; done' \
     >> /etc/bash.bashrc
 
+## Forcing terminal to xterm ( fix issue with kubectl exec )
+#
+RUN echo "export TERM=xterm" >> /etc/bash.bashrc && \
+    echo "alias tmux='script /dev/null -qc tmux'" >> /etc/bash.bashrc
+
 ## Force user to redefine CMD
 #
 CMD false

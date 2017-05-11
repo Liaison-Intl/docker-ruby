@@ -46,6 +46,7 @@ RUN apt-get clean && apt-get update && apt-get install -y \
     freetds-bin \
     libpcre3-dev \
     # For minimum debug purpose
+    gdb \
     telnet \
     redis-tools \
     dnsutils \

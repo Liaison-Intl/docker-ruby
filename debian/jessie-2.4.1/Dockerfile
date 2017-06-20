@@ -111,7 +111,7 @@ RUN echo "America/New_York" > /etc/timezone && \
 
 ## Install wkhtmltox ( SECURITY: select latest stable from http://wkhtmltopdf.org/downloads.html )
 #
-RUN curl -sSL http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz \
+RUN curl -sSL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz \
       | tar -C /usr/ --strip-components=1 -xJf -
 
 # Install phantomjs ( SECURITY: select latest 1.9.x from https://bitbucket.org/ariya/phantomjs/downloads )

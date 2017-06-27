@@ -12,7 +12,8 @@ RUN cat /opt/gcloud_apt.gpg | apt-key add - && \
 #
 COPY sources.list /etc/apt/sources.list
 COPY apt.conf /etc/apt/apt.conf.d/70debconf
-RUN apt-get clean && apt-get update && apt-get install -y \
+RUN mkdir -p /var/cache/apt/archives && \
+    apt-get clean && apt-get update && apt-get install -y \
     # For ruby compile
     debian-keyring \
     sharutils \

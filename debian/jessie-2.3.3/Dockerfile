@@ -97,6 +97,11 @@ RUN mkdir -p /var/cache/apt/archives && \
     rm -rf /usr/share/man && \
     rm -rf /var/log/*
 
+## Install dumb-init
+#
+RUN wget -O /bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64
+RUN chmod +x /bin/dumb-init
+
 ## Set LOCALE to UTF8
 #
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \

@@ -23,6 +23,7 @@ RUN mkdir -p /var/cache/apt/archives && \
     gzip \
     unzip \
     curl \
+    wget \
     openssl \
     # For minimum debug purpose
     telnet \

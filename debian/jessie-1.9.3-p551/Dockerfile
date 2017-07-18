@@ -108,7 +108,7 @@ RUN chmod +x /bin/dumb-init
 ENV TINI_VERSION v0.15.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini.asc /tini.asc
-chmod +x /tini
+RUN chmod +x /tini
 
 ## Set LOCALE to UTF8
 #

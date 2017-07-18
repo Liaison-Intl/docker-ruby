@@ -49,6 +49,13 @@ RUN mkdir -p /var/cache/apt/archives && \
 RUN wget -O /bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64
 RUN chmod +x /bin/dumb-init
 
+## Install tini
+#
+ENV TINI_VERSION v0.15.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini.asc /tini.asc
+chmod +x /tini
+
 ## Set LOCALE to UTF8
 #
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \

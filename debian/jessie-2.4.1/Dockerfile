@@ -90,6 +90,7 @@ RUN mkdir -p /var/cache/apt/archives && \
     libfreetype6-dev \
     cron \
     vim \
+    ssh \
     # For common app ( with Gemfile refering to git repos )
     git && \
     # Tidy up and reduce space

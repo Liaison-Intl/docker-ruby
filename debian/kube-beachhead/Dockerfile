@@ -33,6 +33,7 @@ RUN mkdir -p /var/cache/apt/archives && \
     netcat-openbsd \
     less \
     htop \
+    vim \
     # For GCE and GKE access
     google-cloud-sdk \
     kubectl && \

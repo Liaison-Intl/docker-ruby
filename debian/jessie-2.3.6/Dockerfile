@@ -177,6 +177,12 @@ RUN mkdir /etc/bashrc.d && \
 RUN echo "export TERM=xterm" >> /etc/bash.bashrc && \
     echo "alias tmux='script /dev/null -qc tmux'" >> /etc/bash.bashrc
 
+## Save a few line of history from ruby console to improve the developer experience
+#
+RUN echo "IRB.conf[:SAVE_HISTORY] = 200" >> /home/app/.irbrc && \
+    echo "IRB.conf[:HISTORY_FILE] = '~/.irb-history'" >> /home/app/.irbrc && \
+    chown app:app /home/app/.irbrc
+
 ## Force user to redefine CMD
 #
 CMD false

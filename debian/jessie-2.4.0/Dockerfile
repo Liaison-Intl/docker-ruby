@@ -171,6 +171,8 @@ RUN mkdir /etc/bashrc.d && \
     >> /etc/profile && \
     echo '[[ -d /etc/bashrc.d ]] && for i in $(find /etc/bashrc.d/ -type f | sort -n) ; do . $i ; done' \
     >> /etc/bash.bashrc
+RUN echo 'export PATH=/home/app/bundle/bin:/usr/local/bundle/bin:$PATH' \
+      >> /etc/bashrc.d/0-env
 
 ## Forcing terminal to xterm ( fix issue with kubectl exec )
 #

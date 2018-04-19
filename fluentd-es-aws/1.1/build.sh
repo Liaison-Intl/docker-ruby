@@ -22,7 +22,8 @@ apt-get install -y -q --no-install-recommends \
   curl ca-certificates make g++ sudo bash
 
 # Install Fluentd.
-/usr/bin/curl -sSL https://toolbelt.treasuredata.com/sh/install-ubuntu-xenial-td-agent2.sh | sh
+# Downloaded from https://td-agent-package-browser.herokuapp.com/3/ubuntu/trusty/pool/contrib/t/td-agent
+apt install -y /tmp/td-agent_3.1.1-0_amd64.deb
 
 # Change the default user and group to root.
 # Needed to allow access to /var/log/docker/... files.
@@ -30,7 +31,7 @@ sed -i -e "s/USER=td-agent/USER=root/" -e "s/GROUP=td-agent/GROUP=root/" /etc/in
 
 # Install the Elasticsearch Fluentd plug-in.
 # http://docs.fluentd.org/articles/plugin-management
-td-agent-gem install --no-document fluent-plugin-kubernetes_metadata_filter -v 0.24.0
+td-agent-gem install --no-document fluent-plugin-kubernetes_metadata_filter -v 1.0.1
 td-agent-gem install --no-document fluent-plugin-aws-elasticsearch-service -v 1.0.0
 
 # Remove docs and postgres references

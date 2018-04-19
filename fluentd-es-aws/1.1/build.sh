@@ -23,7 +23,7 @@ apt-get install -y -q --no-install-recommends \
 
 # Install Fluentd.
 # Downloaded from https://td-agent-package-browser.herokuapp.com/3/ubuntu/trusty/pool/contrib/t/td-agent
-apt install -y /tmp/td-agent_3.1.1-0_amd64.deb
+apt install -y /tmp/td-agent_2.3.6-0_amd64.deb
 
 # Change the default user and group to root.
 # Needed to allow access to /var/log/docker/... files.

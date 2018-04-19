@@ -33,7 +33,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # Copy the Fluentd configuration file.
 COPY td-agent.conf /etc/td-agent/td-agent.conf
 
-COPY td-agent_3.1.1-0_amd64.deb /tmp/td-agent_3.1.1-0_amd64.deb
+COPY td-agent_2.3.6-0_amd64.deb /tmp/td-agent_2.3.6-0_amd64.deb
 
 COPY build.sh /tmp/build.sh
 RUN /tmp/build.sh

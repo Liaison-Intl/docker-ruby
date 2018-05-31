@@ -1,9 +1,11 @@
-FROM debian:jessie
+FROM debian:stretch
 
 ENV DEBIAN_FRONTEND noninteractive
 
 ## Add official postgres apt repos key
 #
+RUN apt-get update ; apt-get install -y \
+    gnupg2
 COPY postgres_apt.gpg /opt/
 RUN cat /opt/postgres_apt.gpg | apt-key add - && \
     rm -f /opt/postgres_apt.gpg
@@ -33,7 +35,8 @@ RUN mkdir -p /var/cache/apt/archives && \
     patch \
     libreadline6-dev \
     zlib1g-dev \
-    libssl-dev \
+    #libssl-dev ruby 2.3.6 require openssl 1.0.x :-( \
+    libssl1.0-dev \
     libyaml-dev \
     autoconf \
     libncurses5-dev \
@@ -84,9 +87,9 @@ RUN mkdir -p /var/cache/apt/archives && \
     libmagick++-dev \
     libtool \
     libjpeg-dev \
-    libpng12-dev \
+    libpng-dev \
     libpng++-dev \
-    libpng3 \
+    libpng-tools \
     libfreetype6-dev \
     cron \
     vim \

@@ -10,10 +10,13 @@ RUN cat /opt/postgres_apt.gpg | apt-key add - && \
 
 ## Install base package
 #
-COPY sources.list /etc/apt/sources.list
 COPY apt.conf /etc/apt/apt.conf.d/70debconf
 RUN mkdir -p /var/cache/apt/archives && \
-    apt-get clean && apt-get update && apt-get install -y --force-yes \
+    apt-get update && \
+    apt-get install -y apt-transport-https ca-certificates krb5-locales libsasl2-modules
+COPY sources.list /etc/apt/sources.list
+RUN apt-get clean && apt-get update && \
+    apt-get install -y \
     # For ruby compile
     debian-keyring \
     sharutils \

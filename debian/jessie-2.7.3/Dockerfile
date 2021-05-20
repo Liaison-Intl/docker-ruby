@@ -142,7 +142,7 @@ RUN curl -sSL https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-li
 ENV RUBY_MAJOR=2.7 \
     RUBY_VERSION=2.7.3 \
     RUBY_DOWNLOAD_SHA256=8925a95e31d8f2c81749025a52a544ea1d05dad18794e6828709268b92e55338 \
-    RUBYGEMS_VERSION=2.7.8 \
+    RUBYGEMS_VERSION=3.2.17 \
     PATH=/usr/local/bundle/bin:$PATH
 RUN set -ex && \
     useradd -m -s /bin/bash app && \

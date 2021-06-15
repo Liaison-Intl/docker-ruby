@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:stretch
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -30,7 +30,7 @@ RUN mkdir -p /var/cache/apt/archives && \
     patch \
     libreadline6-dev \
     zlib1g-dev \
-    libssl-dev \
+    libssl1.0-dev \
     libyaml-dev \
     autoconf \
     libncurses5-dev \
